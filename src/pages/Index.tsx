@@ -1,8 +1,11 @@
 import { Button } from "@/components/ui/button";
 import castleBackground from "@/assets/castle-background.jpg";
 import { Zap, Target, Layers } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
+  const navigate = useNavigate();
+  
   const floatingEmojis = [
     { emoji: "💀", style: "top-[10%] left-[8%]", animation: "animate-float" },
     { emoji: "🧙", style: "top-[15%] right-[15%]", animation: "animate-float-slow" },
@@ -88,6 +91,7 @@ const Index = () => {
           <div className="space-y-2">
             <Button 
               size="lg"
+              onClick={() => navigate("/arena")}
               className="bg-battle-gradient text-foreground font-black text-xl px-12 py-8 rounded-2xl hover:scale-105 transition-all shadow-2xl border-2 border-accent animate-pulse-glow"
             >
               ⚔️ READY FOR BATTLE ⚔️
