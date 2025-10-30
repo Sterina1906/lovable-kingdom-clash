@@ -2,9 +2,18 @@ import { Button } from "@/components/ui/button";
 import castleBackground from "@/assets/castle-background.jpg";
 import { Zap, Target, Layers } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 const Index = () => {
   const navigate = useNavigate();
+  const [isTearing, setIsTearing] = useState(false);
+
+  const handleBattleClick = () => {
+    setIsTearing(true);
+    setTimeout(() => {
+      navigate("/arena");
+    }, 1000);
+  };
   
   const floatingEmojis = [
     { emoji: "💀", style: "top-[10%] left-[8%]", animation: "animate-float" },
@@ -18,7 +27,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className={`relative min-h-screen overflow-hidden ${isTearing ? 'animate-tear-apart' : ''}`}>
       {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -89,13 +98,13 @@ const Index = () => {
 
           {/* CTA Button */}
           <div className="space-y-2">
-            <Button 
-              size="lg"
-              onClick={() => navigate("/arena")}
-              className="bg-battle-gradient text-foreground font-black text-xl px-12 py-8 rounded-2xl hover:scale-105 transition-all shadow-2xl border-2 border-accent animate-pulse-glow"
-            >
-              ⚔️ READY FOR BATTLE ⚔️
-            </Button>
+          <Button 
+            size="lg"
+            onClick={handleBattleClick}
+            className="bg-battle-gradient text-foreground font-black text-xl px-12 py-8 rounded-2xl hover:scale-105 transition-all shadow-2xl border-2 border-accent animate-pulse-glow"
+          >
+            ⚔️ READY FOR BATTLE ⚔️
+          </Button>
             <p className="text-sm text-foreground/70">Click to enter the arena...</p>
           </div>
         </div>

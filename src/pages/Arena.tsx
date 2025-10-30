@@ -19,11 +19,11 @@ interface AttackAnimation {
 }
 
 const troops: Troop[] = [
-  { id: "1", emoji: "⚔️", name: "Knight", kingdom: "blue" },
-  { id: "2", emoji: "🏹", name: "Archer", kingdom: "blue" },
-  { id: "3", emoji: "🧙", name: "Wizard", kingdom: "blue" },
-  { id: "4", emoji: "🐉", name: "Dragon", kingdom: "blue" },
-  { id: "5", emoji: "💀", name: "Skeleton", kingdom: "blue" },
+  { id: "troop-knight-001", emoji: "⚔️", name: "Knight", kingdom: "blue" },
+  { id: "troop-archer-002", emoji: "🏹", name: "Archer", kingdom: "blue" },
+  { id: "troop-wizard-003", emoji: "🧙", name: "Wizard", kingdom: "blue" },
+  { id: "troop-dragon-004", emoji: "🐉", name: "Dragon", kingdom: "blue" },
+  { id: "troop-skeleton-005", emoji: "💀", name: "Skeleton", kingdom: "blue" },
 ];
 
 const Arena = () => {
