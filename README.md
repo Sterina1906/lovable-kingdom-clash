@@ -2,7 +2,7 @@
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/34969e35-0ae5-408c-81e7-fd9fe7f1ca95
+**URL**: (https://lovable-kingdom-clash.lovable.app)
 
 ## How can I edit this code?
 
