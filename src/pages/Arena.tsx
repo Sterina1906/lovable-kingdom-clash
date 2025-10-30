@@ -12,15 +12,18 @@ interface Troop {
   kingdom: "blue" | "red";
 }
 
+interface AttackAnimation {
+  id: string;
+  type: "fire" | "sword";
+  position: number;
+}
+
 const troops: Troop[] = [
   { id: "1", emoji: "⚔️", name: "Knight", kingdom: "blue" },
   { id: "2", emoji: "🏹", name: "Archer", kingdom: "blue" },
   { id: "3", emoji: "🧙", name: "Wizard", kingdom: "blue" },
   { id: "4", emoji: "🐉", name: "Dragon", kingdom: "blue" },
-  { id: "5", emoji: "💀", name: "Skeleton", kingdom: "red" },
-  { id: "6", emoji: "👹", name: "Goblin", kingdom: "red" },
-  { id: "7", emoji: "🔥", name: "Fire Spirit", kingdom: "red" },
-  { id: "8", emoji: "🧟", name: "Zombie", kingdom: "red" },
+  { id: "5", emoji: "💀", name: "Skeleton", kingdom: "blue" },
 ];
 
 const Arena = () => {
@@ -28,6 +31,8 @@ const Arena = () => {
   const [queue, setQueue] = useState<(Troop & { queueId: string })[]>([]);
   const [deployedTroops, setDeployedTroops] = useState<(Troop & { queueId: string; position: number })[]>([]);
   const [counter, setCounter] = useState(0);
+  const [attacks, setAttacks] = useState<AttackAnimation[]>([]);
+  const [castleHealth, setCastleHealth] = useState(100);
 
   const enqueue = (troop: Troop) => {
     const queueId = `${troop.id}-${Date.now()}-${counter}`;
@@ -48,9 +53,24 @@ const Arena = () => {
 
     const [firstTroop, ...rest] = queue;
     setQueue(rest);
-    setDeployedTroops((prev) => [...prev, { ...firstTroop, position: prev.length }]);
+    const position = deployedTroops.length;
+    setDeployedTroops((prev) => [...prev, { ...firstTroop, position }]);
+    
+    // Trigger attack animation
+    const attackType = firstTroop.name === "Dragon" ? "fire" : "sword";
+    const attackId = `attack-${Date.now()}`;
+    setAttacks((prev) => [...prev, { id: attackId, type: attackType, position }]);
+    
+    // Damage castle
+    setCastleHealth((prev) => Math.max(0, prev - 10));
+    
+    // Remove attack animation after 2 seconds
+    setTimeout(() => {
+      setAttacks((prev) => prev.filter((a) => a.id !== attackId));
+    }, 2000);
+    
     toast.success(`${firstTroop.emoji} ${firstTroop.name} deployed!`, {
-      description: "Removed from front of queue",
+      description: "Attacking the castle!",
     });
   };
 
@@ -61,6 +81,7 @@ const Arena = () => {
 
   const clearDeployed = () => {
     setDeployedTroops([]);
+    setAttacks([]);
     toast.info("Battlefield cleared!");
   };
 
@@ -68,6 +89,8 @@ const Arena = () => {
     setQueue([]);
     setDeployedTroops([]);
     setCounter(0);
+    setAttacks([]);
+    setCastleHealth(100);
     toast.info("Arena reset!");
   };
 
@@ -110,51 +133,27 @@ const Arena = () => {
           {/* Troop Selection */}
           <Card className="backdrop-blur-md bg-card/90 border-2 border-gold/30 p-6">
             <h2 className="text-2xl font-bold mb-4 text-center text-gold">
-              🏰 Select Troops
+              🏰 Select Your Army
             </h2>
             
             <div className="space-y-4">
               <div>
                 <h3 className="text-lg font-semibold mb-2 text-blue-kingdom flex items-center">
-                  <span className="mr-2">🛡️</span> Blue Kingdom
+                  <span className="mr-2">🛡️</span> Your Troops
                 </h3>
                 <div className="grid grid-cols-2 gap-2">
-                  {troops
-                    .filter((t) => t.kingdom === "blue")
-                    .map((troop) => (
-                      <Button
-                        key={troop.id}
-                        onClick={() => enqueue(troop)}
-                        className="h-20 text-2xl bg-blue-kingdom/80 hover:bg-blue-kingdom border-2 border-blue-kingdom/50"
-                      >
-                        <div className="flex flex-col items-center">
-                          <span className="text-3xl mb-1">{troop.emoji}</span>
-                          <span className="text-xs">{troop.name}</span>
-                        </div>
-                      </Button>
-                    ))}
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold mb-2 text-red-kingdom flex items-center">
-                  <span className="mr-2">⚔️</span> Red Kingdom
-                </h3>
-                <div className="grid grid-cols-2 gap-2">
-                  {troops
-                    .filter((t) => t.kingdom === "red")
-                    .map((troop) => (
-                      <Button
-                        key={troop.id}
-                        onClick={() => enqueue(troop)}
-                        className="h-20 text-2xl bg-red-kingdom/80 hover:bg-red-kingdom border-2 border-red-kingdom/50"
-                      >
-                        <div className="flex flex-col items-center">
-                          <span className="text-3xl mb-1">{troop.emoji}</span>
-                          <span className="text-xs">{troop.name}</span>
-                        </div>
-                      </Button>
-                    ))}
+                  {troops.map((troop) => (
+                    <Button
+                      key={troop.id}
+                      onClick={() => enqueue(troop)}
+                      className="h-20 text-2xl bg-blue-kingdom/80 hover:bg-blue-kingdom border-2 border-blue-kingdom/50"
+                    >
+                      <div className="flex flex-col items-center">
+                        <span className="text-3xl mb-1">{troop.emoji}</span>
+                        <span className="text-xs">{troop.name}</span>
+                      </div>
+                    </Button>
+                  ))}
                 </div>
               </div>
             </div>
@@ -235,11 +234,11 @@ const Arena = () => {
             </div>
           </Card>
 
-          {/* Deployed Troops (Battlefield) */}
+          {/* Battlefield with Castle */}
           <Card className="backdrop-blur-md bg-card/90 border-2 border-gold/30 p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-bold text-gold">
-                🎯 Battlefield
+                🏰 Battlefield
               </h2>
               <Button
                 onClick={clearDeployed}
@@ -251,11 +250,57 @@ const Arena = () => {
               </Button>
             </div>
 
-            <div className="space-y-3 min-h-[400px]">
+            {/* Castle */}
+            <div className="relative mb-6 h-48 rounded-lg overflow-hidden border-2 border-gold/50">
+              <img 
+                src={new URL('../assets/battlefield-castle.png', import.meta.url).href}
+                alt="Enemy Castle"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute top-2 left-2 right-2">
+                <div className="bg-background/80 backdrop-blur-sm rounded-lg p-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-semibold">Castle Health</span>
+                    <span className="text-xs font-bold">{castleHealth}%</span>
+                  </div>
+                  <div className="h-3 bg-muted rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-red-500 to-red-600 transition-all duration-500"
+                      style={{ width: `${castleHealth}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              {/* Attack Animations */}
+              {attacks.map((attack) => (
+                <div
+                  key={attack.id}
+                  className="absolute bottom-0 left-1/2 transform -translate-x-1/2 animate-slide-up"
+                >
+                  {attack.type === "fire" ? (
+                    <span className="text-6xl animate-pulse-glow">🔥</span>
+                  ) : (
+                    <span className="text-6xl animate-bounce">⚔️</span>
+                  )}
+                </div>
+              ))}
+              
+              {castleHealth === 0 && (
+                <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+                  <div className="text-center">
+                    <p className="text-4xl font-black text-gold mb-2">🏆 VICTORY! 🏆</p>
+                    <p className="text-sm text-muted-foreground">Castle Destroyed!</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-3 min-h-[200px]">
               {deployedTroops.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-[400px] text-muted-foreground">
+                <div className="flex flex-col items-center justify-center h-[200px] text-muted-foreground">
                   <p className="text-lg">No troops deployed</p>
-                  <p className="text-sm">Deploy from queue</p>
+                  <p className="text-sm">Deploy from queue to attack!</p>
                 </div>
               ) : (
                 <>
@@ -273,18 +318,12 @@ const Arena = () => {
                           <div>
                             <p className="font-semibold">{troop.name}</p>
                             <p className="text-xs text-muted-foreground">
-                              Deployed #{index + 1}
+                              {troop.name === "Dragon" ? "🔥 Fire Attack" : "⚔️ Sword Attack"}
                             </p>
                           </div>
                         </div>
-                        <div
-                          className={`px-3 py-1 rounded-full text-xs font-bold ${
-                            troop.kingdom === "blue"
-                              ? "bg-blue-kingdom/30 text-blue-kingdom"
-                              : "bg-red-kingdom/30 text-red-kingdom"
-                          }`}
-                        >
-                          {troop.kingdom.toUpperCase()}
+                        <div className="px-3 py-1 rounded-full text-xs font-bold bg-blue-kingdom/30 text-blue-kingdom">
+                          ATTACKING
                         </div>
                       </div>
                     </div>
@@ -295,7 +334,7 @@ const Arena = () => {
 
             <div className="mt-4 p-3 bg-muted/30 rounded-lg">
               <p className="text-xs text-center text-muted-foreground">
-                <strong>Deployed:</strong> {deployedTroops.length} troops on field
+                <strong>Attacking:</strong> {deployedTroops.length} troops • <strong>Damage:</strong> {100 - castleHealth}%
               </p>
             </div>
           </Card>
